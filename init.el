@@ -6,6 +6,7 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (setq inhibit-splash-screen t)
+(load-theme 'light-blue t)
 (setq visible-bell 1)
 (show-paren-mode 1)
 (electric-pair-mode 1)
