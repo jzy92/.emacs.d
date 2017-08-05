@@ -77,6 +77,11 @@ directory to make multiple eshell windows easier."
       (setq level 1))
   (eshell/cd (string-join (make-list level "..") "/")))
 
+(setq eshell-prompt-function
+      (lambda ()
+        (concat (user-login-name)
+                (if (= (user-uid) 0) " # " " $ "))))
+
 ;; All my custom BS
 
 (custom-set-variables
