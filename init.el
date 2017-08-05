@@ -37,6 +37,23 @@
   (delete-window))
 (global-set-key (kbd "C-x C-k") 'delete-this-buffer-and-window)
 
+(defun shortened-path (path max-len)
+  "Return a modified version of `path', replacing some components
+      with single characters starting from the left to try and get
+      the path down to `max-len'"
+  (let* ((components (split-string (abbreviate-file-name path) "/"))
+         (len (+ (1- (length components))
+                 (cl-reduce '+ components :key 'length)))
+         (str ""))
+    (while (and (> len max-len)
+                (cdr components))
+      (setq str (concat str (if (= 0 (length (car components)))
+                                "/"
+                              (string (elt (car components) 0) ?/)))
+            len (- len (1- (length (car components))))
+            components (cdr components)))
+    (concat str (cl-reduce (lambda (a b) (concat a "/" b)) components))))
+
 ;; eshell helpers and functions
 
 (defun eshell-here ()
@@ -51,12 +68,12 @@ directory to make multiple eshell windows easier."
     (split-window-vertically (- height))
     (other-window 1)
     (eshell "new")
-    (rename-buffer (concat "*eshell: " (eshell/pwd) "*"))))
+    (rename-buffer (concat "*eshell: " (shortened-path (eshell/pwd) 40) "*"))))
 (global-set-key (kbd "C-!") 'eshell-here)
 
 (defun my-change-eshell-buffer-name (old-function &rest arguments)
   "Change eshell buffer name when we change directory."
-  (rename-buffer (concat "*eshell: " (eshell/pwd) "*")))
+  (rename-buffer (concat "*eshell: " (shortened-path (eshell/pwd) 40) "*")))
 (advice-add #'eshell/cd :after #'my-change-eshell-buffer-name)
 
 (defun eshell/x ()
@@ -75,7 +92,7 @@ directory to make multiple eshell windows easier."
   "Go 'up' the requested number of directories."
   (if (null level)
       (setq level 1))
-  (eshell/cd (string-join (make-list level "..") "/")))
+  (eshell/cd (mapconcat 'identity (make-list level "..") "/")))
 
 (setq eshell-prompt-function
       (lambda ()
