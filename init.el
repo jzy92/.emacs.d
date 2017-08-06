@@ -2,6 +2,8 @@
 
 ;; Various settings
 
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -12,7 +14,11 @@
 (electric-pair-mode 1)
 (add-hook 'text-mode-hook 'turn-on-visual-line-mode)
 (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+(column-number-mode 1)
 (setq-default indent-tabs-mode nil)
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
 ;; Various defuns
 
@@ -37,7 +43,9 @@
   (delete-window))
 (global-set-key (kbd "C-x C-k") 'delete-this-buffer-and-window)
 
-(defun shortened-path (path max-len)
+;; eshell helpers and functions
+
+(defun jmz-shortened-path (path max-len)
   "Return a modified version of `path', replacing some components
       with single characters starting from the left to try and get
       the path down to `max-len'"
@@ -54,8 +62,6 @@
             components (cdr components)))
     (concat str (cl-reduce (lambda (a b) (concat a "/" b)) components))))
 
-;; eshell helpers and functions
-
 (defun eshell-here ()
   "Opens up a new shell in the directory associated with the
 current buffer's file. The eshell is renamed to match that
@@ -68,18 +74,15 @@ directory to make multiple eshell windows easier."
     (split-window-vertically (- height))
     (other-window 1)
     (eshell "new")
-    (rename-buffer (concat "*eshell: " (shortened-path (eshell/pwd) 40) "*"))))
+    (rename-buffer (concat "*eshell: "
+                           (jmz-shortened-path (eshell/pwd) 40)
+                           "*"))))
 (global-set-key (kbd "C-!") 'eshell-here)
 
-(defun my-change-eshell-buffer-name (old-function &rest arguments)
+(defun jmz-change-eshell-buffer-name (&optional arguments)
   "Change eshell buffer name when we change directory."
-  (rename-buffer (concat "*eshell: " (shortened-path (eshell/pwd) 40) "*")))
-(advice-add #'eshell/cd :after #'my-change-eshell-buffer-name)
-
-(defun eshell/x ()
-  (insert "exit")
-  (eshell-send-input)
-  (delete-window))
+  (rename-buffer (concat "*eshell: " (jmz-shortened-path (eshell/pwd) 40) "*")))
+(advice-add #'eshell/cd :after #'jmz-change-eshell-buffer-name)
 
 (defun eshell/ff (files)
   "Run find-file on all specified files."
@@ -88,11 +91,27 @@ directory to make multiple eshell windows easier."
         (find-file f))
     (find-file files)))
 
-(defun eshell/up (&optional level)
+(defun jmz-truncate-path-to-prefix (path prefix)
+  "Given a path, go up to first dir matching the prefix and return path, else path."
+  (catch 'early-ret
+    (let ((path-components (reverse (split-string path "/"))))
+      (while (not (null path-components))
+        (let ((dir (pop path-components)))
+          (if (string-match (format "^%s" prefix) dir)
+              (throw
+               'early-ret
+               (mapconcat 'identity (reverse
+                                     (push dir path-components)) "/"))))))
+    (error "Prefix `%s' didn't match any component of %s" prefix path)
+    path))
+
+(defun eshell/up (&optional arg)
   "Go 'up' the requested number of directories."
-  (if (null level)
-      (setq level 1))
-  (eshell/cd (mapconcat 'identity (make-list level "..") "/")))
+  (if (null arg)
+      (setq arg 1))
+  (eshell/cd
+   (if (numberp arg) (mapconcat 'identity (make-list arg "..") "/")
+     (jmz-truncate-path-to-prefix (eshell/pwd) arg))))
 
 (setq eshell-prompt-function
       (lambda ()
@@ -106,7 +125,8 @@ directory to make multiple eshell windows easier."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(eshell-banner-message ""))
+ '(eshell-banner-message "")
+ '(package-selected-packages (quote (2048-game minesweeper rainbow-delimiters))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
