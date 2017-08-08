@@ -23,6 +23,9 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((perl . t)))
+(require 'google-translate)
+(require 'google-translate-smooth-ui)
+(global-set-key (kbd "C-c t") 'google-translate-smooth-translate)
 
 ;; Various defuns
 
@@ -135,7 +138,9 @@ directory to make multiple eshell windows easier."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(eshell-banner-message "")
- '(package-selected-packages (quote (2048-game minesweeper rainbow-delimiters))))
+ '(package-selected-packages
+   (quote
+    (google-translate 2048-game minesweeper rainbow-delimiters))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
