@@ -19,6 +19,10 @@
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+; active Babel langauges
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((perl . t)))
 
 ;; Various defuns
 
@@ -70,18 +74,23 @@ directory to make multiple eshell windows easier."
   (let* ((parent (if (buffer-file-name)
                      (file-name-directory (buffer-file-name))
                    default-directory))
-         (height (/ (window-total-height) 3)))
+         (height (/ (window-total-height) 3))
+         (eshell-buffer-name (concat "*eshell: "
+                                     (jmz-shortened-path (eshell/pwd) 40)
+                                     "*")))
     (split-window-vertically (- height))
     (other-window 1)
-    (eshell "new")
-    (rename-buffer (concat "*eshell: "
-                           (jmz-shortened-path (eshell/pwd) 40)
-                           "*"))))
+    (if (and (not (null (get-buffer eshell-buffer-name)))
+             (yes-or-no-p (format "Do you want existing eshell buffer %s? " eshell-buffer-name)))
+        (switch-to-buffer eshell-buffer-name)
+      (progn
+        (eshell "new")
+        (rename-buffer eshell-buffer-name t)))))
 (global-set-key (kbd "C-!") 'eshell-here)
 
 (defun jmz-change-eshell-buffer-name (&optional arguments)
   "Change eshell buffer name when we change directory."
-  (rename-buffer (concat "*eshell: " (jmz-shortened-path (eshell/pwd) 40) "*")))
+  (rename-buffer (concat "*eshell: " (jmz-shortened-path (eshell/pwd) 40) "*") t))
 (advice-add #'eshell/cd :after #'jmz-change-eshell-buffer-name)
 
 (defun eshell/ff (files)
