@@ -26,6 +26,7 @@
 (require 'google-translate)
 (require 'google-translate-smooth-ui)
 (global-set-key (kbd "C-c t") 'google-translate-smooth-translate)
+(require 'thingatpt)
 
 ;; Various defuns
 
@@ -49,6 +50,42 @@
   (kill-buffer)
   (delete-window))
 (global-set-key (kbd "C-x C-k") 'delete-this-buffer-and-window)
+
+(defun replace-word-at-point (new-word)
+  "Replace word currently under point."
+  (backward-word)
+  (kill-word 1)
+  (insert new-word))
+
+(defun latex-text-size-change-command (make-larger) ; bool argument
+  "If point is on a text size command, change to one larger or smaller."
+  (let* ((size-command-list '("tiny" "scriptsize" "footnotesize"
+                              "small" "normalsize" "large" "Large"
+                              "LARGE" "huge" "Huge"))
+         (current-command (thing-at-point 'word 'no-properties))
+         (command-idx (cl-position current-command size-command-list :test 'equal)))
+    (cond ((not (numberp command-idx))
+           (error "Word at point '%s' is not a size command (%s)" current-command command-idx))
+          ((and (= command-idx 0) (not make-larger)) 
+           (message "Already at smallest text size"))
+          ((and (= command-idx (1- (length size-command-list))) make-larger)
+           (message "Already at largest text size"))
+          (make-larger
+           (replace-word-at-point (nth (1+ command-idx) size-command-list)))
+          ((not make-larger)
+           (replace-word-at-point (nth (1- command-idx) size-command-list))))))
+
+(defun latex-text-size-change-larger ()
+  (interactive)
+  (latex-text-size-change-command t))
+(defun latex-text-size-change-smaller ()
+  (interactive)
+  (latex-text-size-change-command nil))
+
+(add-hook 'latex-mode-hook
+          (lambda ()
+            (define-key latex-mode-map (kbd "M-n") 'latex-text-size-change-smaller)
+            (define-key latex-mode-map (kbd "M-p") 'latex-text-size-change-larger)))
 
 ;; eshell helpers and functions
 
