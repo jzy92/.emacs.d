@@ -27,6 +27,8 @@
 (require 'google-translate-smooth-ui)
 (global-set-key (kbd "C-c t") 'google-translate-smooth-translate)
 (require 'thingatpt)
+; org tables don't behave with visual-line-mode, so turn it off for org buffers
+(add-hook 'org-mode-hook (lambda () (visual-line-mode -1)))
 
 ;; Various defuns
 
