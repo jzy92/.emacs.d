@@ -29,6 +29,7 @@
 (require 'thingatpt)
 ; org tables don't behave with visual-line-mode, so turn it off for org buffers
 (add-hook 'org-mode-hook (lambda () (visual-line-mode -1)))
+(ivy-mode 1)
 
 ;; Various defuns
 
@@ -141,6 +142,17 @@ directory to make multiple eshell windows easier."
       (dolist (f files)
         (find-file f))
     (find-file files)))
+
+(defun eshell/ffs (file)
+  "Run find-file on one files; split window."
+  (if (not (listp file))
+      (progn
+        (if (> (window-total-width) (* 2 (window-total-height)))
+            (split-window-right)
+          (split-window-below))
+        (other-window 1)
+        (find-file file))
+    (error "Command doesn't work for multiple files")))
 
 (defun jmz-truncate-path-to-prefix (path prefix)
   "Given a path, go up to first dir matching the prefix and return path, else path."
