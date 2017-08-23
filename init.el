@@ -29,6 +29,7 @@
 (require 'thingatpt)
 ; org tables don't behave with visual-line-mode, so turn it off for org buffers
 (add-hook 'org-mode-hook (lambda () (visual-line-mode -1)))
+(setq org-table-copy-increment nil)
 (ivy-mode 1)
 
 ;; Various defuns
@@ -89,6 +90,16 @@
           (lambda ()
             (define-key latex-mode-map (kbd "M-n") 'latex-text-size-change-smaller)
             (define-key latex-mode-map (kbd "M-p") 'latex-text-size-change-larger)))
+
+(defun add-to-number-at-point (num-to-add)
+  "Add argument to number at point, defaulting to +1"
+  (interactive "p")
+  (let ((num-to-add (if (null num-to-add) 1 num-to-add))
+        (cur-number (thing-at-point 'number 'no-properties)))
+    (if (numberp cur-number)
+        (replace-word-at-point (number-to-string (+ cur-number num-to-add)))
+      (error "Point '%s' not at a number" cur-number))))
+(global-set-key (kbd "C-c +") 'add-to-number-at-point)
 
 ;; eshell helpers and functions
 
