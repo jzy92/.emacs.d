@@ -4,6 +4,7 @@
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'load-path "~/.emacs.d/lisp/")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -31,6 +32,11 @@
 (add-hook 'org-mode-hook (lambda () (visual-line-mode -1)))
 (setq org-table-copy-increment nil)
 (ivy-mode 1)
+(require 's)
+(require 'org-table-sort-rules)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (define-key org-mode-map (kbd "C-c M-^") 'org-table-sort-rules/apply)))
 
 ;; Various defuns
 
@@ -202,7 +208,7 @@ directory to make multiple eshell windows easier."
  '(eshell-banner-message "")
  '(package-selected-packages
    (quote
-    (google-translate 2048-game minesweeper rainbow-delimiters))))
+    (s google-translate 2048-game minesweeper rainbow-delimiters))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
