@@ -1,13 +1,16 @@
+;; NOTE: Column names don't work if they have regexp special characters
+
 (defun org-table-sort-rules/collect-options (sort-options line)
   (string-match "#\\+SORT:[[:space:]]*\\(.*\\)" line)
-  (let ((new-option-strings (split-string (match-string 1 line) "[[:space:]]+")))
-    (setq sort-options
-          (mapcar (lambda (option-string)
-                    (if (string-match "\"\\(.*\\)\":\\([antfANTF]\\)" option-string)
-                        (cons (match-string 1 option-string) (string-to-char (match-string 2 option-string)))
-                      (error "Couldn't extract valid sort option from string %s" option-string)))
-          new-option-strings))
-    sort-options))
+  (let ((full-option-string (match-string 1 line))
+        (search-start-idx 0))
+    (while (string-match "\"\\([^\"]*\\)\":\\([antfANTF]\\)" full-option-string search-start-idx)
+      (setq sort-options
+            (cl-acons (match-string 1 full-option-string)
+                      (string-to-char (match-string 2 full-option-string))
+                      sort-options))
+      (setq search-start-idx (match-end 0))))
+  (reverse sort-options))
 
 (defun org-table-sort-rules/apply-sort-option (option-cons)
   "Call me with point at beginning of table."
