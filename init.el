@@ -37,6 +37,10 @@
 (add-hook 'org-mode-hook
           (lambda ()
             (define-key org-mode-map (kbd "C-c M-^") 'org-table-sort-rules/apply)))
+(add-hook 'before-save-hook
+          (lambda ()
+            (if (equal major-mode 'org-mode)
+                (org-table-sort-rules/apply-all))))
 
 ;; Various defuns
 

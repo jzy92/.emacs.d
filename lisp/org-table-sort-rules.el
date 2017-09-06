@@ -22,9 +22,10 @@
 
 (defun org-table-sort-rules/apply ()
   (interactive)
-  (goto-char (org-table-begin))
   (let ((sort-options '())
-        (column-names '()))
+        (column-names '())
+        (original-point (point)))
+    (goto-char (org-table-begin))
     ;; Collect options
     (save-excursion
       (while (and (equal 0 (forward-line -1))
@@ -43,6 +44,20 @@
     (dolist (option-cons sort-options)
       (let ((start-point (point)))
         (org-table-sort-rules/apply-sort-option option-cons)
-        (goto-char start-point)))))
+        (goto-char start-point)))
+    (goto-char original-point))
+  (message "Applied sort rule"))
+
+(defun org-table-sort-rules/apply-all ()
+  "Apply all the table sort rules in a buffer. Useful for hooks."
+  (interactive)
+  (let ((start-point (point)))
+    (goto-char (point-min))
+    (while (search-forward-regexp "^#\\+SORT:" nil t)
+      (while (and (equal 0 (forward-line 1))
+                  (looking-at "#\\+")))
+      (org-table-sort-rules/apply))
+    (goto-char start-point))
+  (message "Applied all sort rules"))
 
 (provide 'org-table-sort-rules)
