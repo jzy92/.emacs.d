@@ -111,6 +111,13 @@
       (error "Point '%s' not at a number" cur-number))))
 (global-set-key (kbd "C-c +") 'add-to-number-at-point)
 
+(defun insert-date ()
+  "Insert the current date (ISO format)."
+  (interactive)
+  (let ((system-time-locale "de_DE"))
+    (insert (format-time-string "%Y-%m-%d"))))
+(global-set-key (kbd "C-c d") 'insert-date)
+
 ;; eshell helpers and functions
 
 (defun jmz-shortened-path (path max-len)
