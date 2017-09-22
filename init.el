@@ -41,6 +41,11 @@
           (lambda ()
             (if (equal major-mode 'org-mode)
                 (org-table-sort-rules/apply-all))))
+(setq initial-scratch-message "")
+; Don't use VC for Git, 'cause we have magit for that
+(setq vc-handled-backends (delq 'Git vc-handled-backends))
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 
 ;; Various defuns
 
@@ -219,7 +224,7 @@ directory to make multiple eshell windows easier."
  '(eshell-banner-message "")
  '(package-selected-packages
    (quote
-    (s google-translate 2048-game minesweeper rainbow-delimiters))))
+    (magit s google-translate 2048-game minesweeper rainbow-delimiters))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

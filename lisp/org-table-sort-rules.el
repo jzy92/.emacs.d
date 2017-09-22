@@ -45,8 +45,10 @@
       (let ((start-point (point)))
         (org-table-sort-rules/apply-sort-option option-cons)
         (goto-char start-point)))
-    (goto-char original-point))
-  (message "Applied sort rule"))
+    (goto-char original-point)
+    (if (not (null sort-options))
+        (message "Applied sort rule")
+      (message "No sort rule found"))))
 
 (defun org-table-sort-rules/apply-all ()
   "Apply all the table sort rules in a buffer. Useful for hooks."
