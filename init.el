@@ -46,6 +46,8 @@
 (setq vc-handled-backends (delq 'Git vc-handled-backends))
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+(setq c-default-style "linux"
+      c-basic-offset 4)
 
 ;; Various defuns
 
@@ -115,6 +117,8 @@
         (replace-word-at-point (number-to-string (+ cur-number num-to-add)))
       (error "Point '%s' not at a number" cur-number))))
 (global-set-key (kbd "C-c +") 'add-to-number-at-point)
+(add-hook 'org-mode-hook
+          (lambda () (define-key org-mode-map (kbd "C-c M-+") 'add-to-number-at-point)))
 
 (defun insert-date ()
   "Insert the current date (ISO format)."
