@@ -32,6 +32,7 @@
 (add-hook 'org-mode-hook (lambda () (visual-line-mode -1)))
 (setq org-table-copy-increment nil)
 (ivy-mode 1)
+(require 'protobuf-mode)
 (require 's)
 (require 'org-table-sort-rules)
 (add-hook 'org-mode-hook
@@ -228,7 +229,7 @@ directory to make multiple eshell windows easier."
  '(eshell-banner-message "")
  '(package-selected-packages
    (quote
-    (magit s google-translate 2048-game minesweeper rainbow-delimiters))))
+    (magit google-translate 2048-game minesweeper rainbow-delimiters))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
